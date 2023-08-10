@@ -44,7 +44,6 @@ specialcharacters = [
     "\\",
     "]",
     "^",
-    "",
     "`",
     "{",
     "|",
@@ -171,18 +170,18 @@ def test_temp(str):
 def test_temp_2():
     dict = {}
     ref = txt2dict("C:/Users/skyba/vscode-workspace/text.txt")
-    for i in ref.keys():
-        dict[i] = relative_frequency(i, ref, lambda x: x)
-    # print(dict)
-    return dict
+    # return relative_frequency_dict(ref.keys(), ref, lambda x: x)
+    return relative_frequency_dict(ref.keys(), ref, lambda x: math.log(x + 1))
 
 
 def test_temp_3():
     dict = test_temp_2()
 
+    """
     for key, value in dict.items():
         if value != -1:
             dict[key] = math.log(value + 1)
+    """
 
     list = sorted(dict.items(), key=lambda x: x[1])
 
@@ -202,7 +201,7 @@ def freq_score(seq, dict):
     cnt = 0
     sum = 0
 
-    rfd = relative_frequency_dict(arr, dict, lambda x: x)
+    rfd = relative_frequency_dict(arr, dict, lambda x: math.log(x + 1))
 
     for a in arr:
         if a == "":
