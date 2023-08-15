@@ -1,5 +1,5 @@
 # OCRnASR_project
-
+### 이후에 아래 .py 코드 functions에 옮길 수 있음.
 1. 원본 transcript 에서 시간 정보 추출 ---> <b>extracting_time_info.py</b>
 2. transcipt 텍스트 추출 ---> <b>extract_purified_transcript.py</b>
    <br>(오로지 transcript만 한 줄 마다 txt파일로 나오게 함.)
