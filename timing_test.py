@@ -2,8 +2,6 @@ import re
 import os
 
 def timing (input_filename):
-        # 입력 파일명
-    #input_filename = '번역- 1. Orientation.txt'
     # 파일 읽기
     with open(input_filename, 'r') as f:
         content = f.read()
