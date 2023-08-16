@@ -9,6 +9,7 @@
 3. 음성추출---> <b>audio_extract.py</b>
    <br>(.wav 파일로 추출됨)
 4. 음성 파일을 시간 정보에 따라 분할하기 ---> <b>split_wav_by_transcript_timing.py</b>
+#### 4번 작업 오래걸림
 5. 동영상에서 시간 정보에 따라 첫 시간의 frame 추출하기 ---> <b>extract_image_by_transcript_timing.py</b>
 6. sampling rate 16000으로 조절 ---> <b>resampling.py</b>
 7. 각 음성에 대해서 ASR 실행 (OCR 적용 안함, WER을 구하기 위한 데이터) ---> <b>ASR_vanilla.py</b>
