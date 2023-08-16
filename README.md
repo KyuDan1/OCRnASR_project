@@ -1,6 +1,6 @@
 # OCRnASR_project
 ### 이후에 아래 .py 코드 functions에 옮길 수 있음.
-##
+## introai1 계정, nemo 가상환경, python 3.10, Pytorch 1.13.1, cuda11.7
 ## 현재 6번 까지 폴더에 있는 여러개의 강의 영상들에 대해서 반복하여 실행하는 것으로 수정함.
 
 1. 원본 transcript 에서 시간 정보 추출 ---> <b>extracting_time_info.py</b>
