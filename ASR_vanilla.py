@@ -17,14 +17,26 @@ def conformer_wav_to_transcript(AUDIO_FILENAME):
     #duration=librosa.get_duration(y=signal, sr=sample_rate)
     #print("Duration:", duration)
     #print("Native sample rate:", sample_rate)
-
-    am_model_conformer = nemo_asr.models.ASRModel.from_pretrained(model_name="stt_en_conformer_ctc_large")
     files = [AUDIO_FILENAME]
-    transcript = am_model_conformer.transcribe(paths2audio_files=files, logprobs=True)[0]
+    transcript = am_model_conformer.transcribe(paths2audio_files=files)[0]
     return transcript
 
-directory = 'splitted_audio'
+def save_string_to_txt(filename, content):
+    try:
+        with open(filename, 'w') as file:
+            file.write(content)
+        print(f" '{filename}' saved.")
+    except Exception as e:
+        print(f"error")
+
+
+directory = 'resampled_splitted_audio'
+am_model_conformer = nemo_asr.models.ASRModel.from_pretrained(model_name="stt_en_conformer_ctc_large")
+
+output_filename = 'pure_ASR_transcript/'
 
 for filename in os.listdir(directory):
     f = os.path.join(directory, filename)
-    print(conformer_wav_to_transcript(f))
+    save_string_to_txt(output_filename+f'{filename}'.replace("wav","txt"),conformer_wav_to_transcript(f))
+    #with open(output_filename+f'{filename}.', 'w')
+    #print(conformer_wav_to_transcript(f))
