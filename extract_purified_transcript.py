@@ -1,4 +1,5 @@
 import os
+import re
 
 def get_lines_list(text_path):
     with open(text_path, 'r') as f:
@@ -10,17 +11,16 @@ def list_to_txt(input_list, filename):
         for item in input_list:
             file.write(str(item) + '\n')
 
-def get_transcript_txt(input_text_path):
-    arr = get_lines_list(input_text_path)
-    temp = []
-    for i in range(len(arr)):
-        if i%4==2:
-            temp.append(arr[i])
-        else:
-            continue
     
-    result=[]
-    for list in temp:
+def get_transcript_txt(input_file, pattern):
+    new_lines =[]
+    result = []
+    with open(input_file, 'r') as f:
+        lines = f.readlines()
+    for text in lines:
+        if not re.fullmatch(pattern, text):
+            new_lines.append(text)
+    for list in new_lines:
         temp2 = list.rstrip("\n")
         result.append(temp2)
     return result
@@ -35,13 +35,12 @@ def remove_duplicate_sentences(list):
     return result
 
 
-#중복 내용 삭제 후
-#list_to_txt(remove_duplicate_sentences(transcripts),deleted_output)
 
-
+# 특정 패턴을 지정합니다.
+pattern = r'\d\n|\d{2}\n|\d{3}\n|(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3}\n)|\n'
 directory = 'transcript'
 for filename in os.listdir(directory):
     f = os.path.join(directory,filename)
-    transcripts = get_transcript_txt(f)
+    transcripts = get_transcript_txt(f,pattern)
     list_to_txt(remove_duplicate_sentences(transcripts),f'after_transcript/purified_{filename}')
 
