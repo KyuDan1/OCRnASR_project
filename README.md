@@ -1,5 +1,8 @@
 # OCRnASR_project
 ### 이후에 아래 .py 코드 functions에 옮길 수 있음.
+##
+## 현재 5번 까지 폴더에 있는 여러개의 강의 영상들에 대해서 반복하여 실행하는 것으로 수정함.
+
 1. 원본 transcript 에서 시간 정보 추출 ---> <b>extracting_time_info.py</b>
 2. transcipt 텍스트 추출 ---> <b>extract_purified_transcript.py</b>
    <br>(오로지 transcript만 한 줄 마다 txt파일로 나오게 함.)
