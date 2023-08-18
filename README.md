@@ -13,7 +13,7 @@
 6. 각 음성에 대해서 ASR 실행 (OCR 적용 안함, WER을 구하기 위한 데이터) ---> <b>ASR_vanilla.py</b>
 #### 위 과정에서 쓰이는 package 중 일부와 NeMo가 호환이 안 되는 문제를 해결하기 위해서 nemoreal 가상환경을 새로만들었고, NeMo를 돌릴땐 가상환경을 nemoreal로 바꿔서 진행해야함.
 
-#### OCR 관련 과정
+#### --OCR 관련 과정--
 7. 동영상에서 시간 정보에 따라 첫 시간의 frame 추출하기 ---> <b>extract_image_by_transcript_timing.py</b>
 #### 7번 작업 오래걸림
 8. 7번에서 추출한 각 이미지에 대해서 OCR 진행 및 text 파일 생성 ---><b></b>
