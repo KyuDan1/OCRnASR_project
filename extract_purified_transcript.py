@@ -34,8 +34,8 @@ def get_transcript_txt(input_file, pattern):
 def get_transcript_txt(input_file):
     def time_valid(text):
         format = "%H:%M:%S,%f"
-        from_time = datetime.datetime.strptime(text[0, 12] + "000", format)
-        to_time = datetime.datetime.strptime(text[-13, -1] + "000", format)
+        from_time = datetime.datetime.strptime(text[0:12] + "000", format)
+        to_time = datetime.datetime.strptime(text[-13:-1] + "000", format)
         return from_time <= to_time
 
     new_lines = []
