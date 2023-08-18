@@ -38,14 +38,14 @@ def get_transcript_txt(input_file):
 
         if text.replace("\t", "") == "":
             return
-        #print("!:", text)
+        print("!:", text)
         from_time = to_time(text[0:12])
         to_time = to_time(text[-12:])
         return from_time <= to_time
 
     new_lines = []
     result = []
-    #print(input_file)
+    print(input_file)
     with open(input_file, "r") as f:
         paragraphs = f.read().split("\n\n")
     for paragraph in paragraphs:
@@ -95,6 +95,55 @@ def process_list(input_list):
     return result
 
 
+def del_punct(text):
+    specialcharacters = [
+        "!",
+        '"',
+        "#",
+        "$",
+        "%",
+        "&",
+        "'",
+        "(",
+        ")",
+        "*",
+        "+",
+        ",",
+        "-",
+        ".",
+        "/",
+        ":",
+        ";",
+        "<",
+        "=",
+        ">",
+        "?",
+        "@",
+        "[",
+        "\\",
+        "]",
+        "^",
+        "`",
+        "{",
+        "|",
+        "}",
+        "~",
+    ]
+    return "".join(char for char in text if char not in specialcharacters)
+
+
+def lowering(text):
+    return text.lower()
+
+
+def remove_duplicate_sentences(sentences):
+    unique_sentences = []
+    for sentence in sentences:
+        if sentence not in unique_sentences:
+            unique_sentences.append(sentence)
+    return unique_sentences
+
+
 # 특정 패턴을 지정합니다.
 pattern = r"(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3}\n)|\n"
 directory = "transcript"
@@ -103,7 +152,11 @@ for filename in os.listdir(directory):
     # transcripts = get_transcript_txt(f, pattern)
     transcripts = get_transcript_txt(f)
     list_to_txt(
-        remove_duplicate_sentences(transcripts),
+        remove_duplicate_sentences(
+            remove_duplicate_sentences(
+                del_punct(lowering(transcript)) for transcript in transcripts
+            )
+        ),
         f"after_transcript/purified_{filename}",
     )
     # print(transcripts)
