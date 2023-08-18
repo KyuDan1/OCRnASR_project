@@ -18,9 +18,9 @@ def WER_of(out_dir, str_file):
     with open(str_file, "r") as f:
         strs = [x for x in f.read().split("\n\n") if x != "**ERROR**"]
 
-    print(output)
-    print("\n\n")
-    print(" ".join(strs))
+    # print(" ".join(output), "\n\n", " ".join(strs))
+
+    print("WER of ", out_dir, ": ", wer(" ".join(strs), " ".join(output)))
 
     return wer(" ".join(strs), " ".join(output))
 
@@ -38,11 +38,14 @@ def mean_WER_of(out_dir, str_file):
     ):
         sum += WER_of(o, s)
         cnt += 1
+
+    print("mean WER of ", out_dir, ": ", sum / cnt)
+
     return sum / cnt
 
 
 # example
 out_dir = "pure_ASR_transcript/audio_1-Orientation/"
 str_file = "after_transcript/purified_번역- 1. Orientation.txt"
-print(WER_of(out_dir, str_file))
+# print(WER_of(out_dir, str_file))
 print(mean_WER_of("pure_ASR_transcript", "after_transcript"))
