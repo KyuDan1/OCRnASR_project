@@ -9,10 +9,13 @@ def WER_of(out_dir, str_file):
             return f.read()
 
     outputs = natsort.natsorted(os.listdir(out_dir))
-    output = map(file_to_text, outputs)
+    output = list(map(file_to_text, outputs))
 
     with open(str_file, "r") as f:
         strs = [x for x in f.read().split("\n\n") if x != "**ERROR**"]
+
+    print(output)
+    print(" ".join(strs))
 
     return wer(" ".join(strs), output)
 

@@ -1,6 +1,5 @@
 import os
 import re
-import datetime
 
 
 def get_lines_list(text_path):
@@ -33,22 +32,31 @@ def get_transcript_txt(input_file, pattern):
 
 def get_transcript_txt(input_file):
     def time_valid(text):
-        format = "%H:%M:%S,%f"
-        from_time = datetime.datetime.strptime(text[0:12] + "000", format)
-        to_time = datetime.datetime.strptime(text[-13:-1] + "000", format)
+        def to_time(time_str):
+            h, m, s, ms = map(int, time_str.replace(",", ":").split(":"))
+            return h * 60 * 60 * 1000 + m * 60 * 1000 + s * 1000 + ms
+
+        if text.replace("\t", "") == "":
+            return
+        #print("!:", text)
+        from_time = to_time(text[0:12])
+        to_time = to_time(text[-12:])
         return from_time <= to_time
 
     new_lines = []
     result = []
+    #print(input_file)
     with open(input_file, "r") as f:
         paragraphs = f.read().split("\n\n")
     for paragraph in paragraphs:
         if paragraph == "":
             continue
-        lines = paragraph.split("\n")
+        lines = [x for x in paragraph.split("\n") if x != ""]
+        if not lines[0].isdigit():
+            continue
         new_lines.append("")
         if time_valid(lines[1]):
-            new_lines.append(lines[1:])
+            new_lines.append("\n".join(lines[2:]))
         else:
             new_lines.append("**ERROR**")
     return new_lines[1:]
@@ -62,6 +70,8 @@ def remove_duplicate_sentences(list):
         l = len(result[i - 1])
         if result[i][0:l] == result[i - 1]:
             result[i] = result[i][l:]
+        if result[0] == "\n":
+            result = result[1:]
     return result
 
 
