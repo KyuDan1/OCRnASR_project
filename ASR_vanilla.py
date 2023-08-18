@@ -32,6 +32,10 @@ def save_string_to_txt(filename, content):
 
 
 am_model_conformer = nemo_asr.models.ASRModel.from_pretrained(model_name="stt_en_conformer_ctc_large")
+am_model_conformer.change_attention_model(
+    self_attention_model="rel_pos_local_attn",
+    att_context_size=[128, 128]
+)
 print("loading complete".upper)
 
 upper_directory = 'resampled_splitted_audio'
@@ -42,8 +46,10 @@ if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 
 directory = os.listdir(upper_directory)
+count_file = 0
 for file in directory:
     audios = os.listdir(os.path.join(upper_directory, file))
+        
     for audio in audios:
         input_file = os.path.join(upper_directory, file, audio)
         output_dir = os.path.join(output_directory, file)
@@ -53,5 +59,3 @@ for file in directory:
             os.makedirs(output_dir)
         
         save_string_to_txt(output_dir+'/pureASRtext '+f'{audio}'.replace("wav","txt"),conformer_wav_to_transcript(input_file))
-
-#오디오에 데이터가 없을 때는 빈 txt 파일을 만드도록 하는 코드가 필요함.
