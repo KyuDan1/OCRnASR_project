@@ -25,10 +25,17 @@ def WER_of(out_dir, str_file):
     return wer(" ".join(strs), " ".join(output))
 
 
-def mean_WER_of(out_dir_list, str_file_list):
+def mean_WER_of(out_dir, str_file):
+    out_dir_list = os.listdir(out_dir)
+    str_file_list = os.listdir(str_file)
+
     sum = 0
     cnt = 0
-    for o, s in zip(out_dir_list, str_file_list):
+    for o, s in zip(
+        list(map((lambda x: out_dir + "/" + x + "/"), out_dir_list)),
+        list(map((lambda x: str_file + "/" + x), str_file_list))
+        # list(map(lambda x: str_file + "/" + x, str_file_list)),
+    ):
         sum += WER_of(o, s)
         cnt += 1
     return sum / cnt
@@ -38,4 +45,4 @@ def mean_WER_of(out_dir_list, str_file_list):
 out_dir = "pure_ASR_transcript/audio_1-Orientation/"
 str_file = "after_transcript/purified_번역- 1. Orientation.txt"
 print(WER_of(out_dir, str_file))
-print(mean_WER_of(os.listdir("pure_ASR_transcript"), os.listdir("after_transcript")))
+print(mean_WER_of("pure_ASR_transcript", "after_transcript"))
