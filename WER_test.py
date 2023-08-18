@@ -9,15 +9,20 @@ def WER_of(out_dir, str_file):
             return f.read()
 
     outputs = natsort.natsorted(os.listdir(out_dir))
-    output = list(map(file_to_text, outputs))
+    # edit part
+    new_outputs = []
+    for i in outputs:
+        new_outputs.append(out_dir + i)
+    output = list(map(file_to_text, new_outputs))
 
     with open(str_file, "r") as f:
         strs = [x for x in f.read().split("\n\n") if x != "**ERROR**"]
 
     print(output)
+    print("\n\n")
     print(" ".join(strs))
 
-    return wer(" ".join(strs), output)
+    return wer(" ".join(strs), " ".join(output))
 
 
 def mean_WER_of(out_dir_list, str_file_list):
@@ -30,7 +35,7 @@ def mean_WER_of(out_dir_list, str_file_list):
 
 
 # example
-out_dir = "pure_ASR_transcript/audio_1-Orientation"
+out_dir = "pure_ASR_transcript/audio_1-Orientation/"
 str_file = "after_transcript/purified_번역- 1. Orientation.txt"
 print(WER_of(out_dir, str_file))
 print(mean_WER_of(os.listdir("pure_ASR_transcript"), os.listdir("after_transcript")))
