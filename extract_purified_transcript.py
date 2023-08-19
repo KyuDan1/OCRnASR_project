@@ -153,9 +153,7 @@ for filename in os.listdir(directory):
     transcripts = get_transcript_txt(f)
     list_to_txt(
         remove_duplicate_sentences(
-            remove_duplicate_sentences(
-                del_punct(lowering(transcript)) for transcript in transcripts
-            )
+            del_punct(lowering(transcript)) for transcript in transcripts
         ),
         f"after_transcript/purified_{filename}",
     )
