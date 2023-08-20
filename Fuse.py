@@ -1,21 +1,23 @@
 import csv
 import math
 import matplotlib.pylab as plt
+import os
 
-csvfile = "C:/Users/skyba/vscode-workspace/unigram_freq.csv"  # To be changed
+from natsort import natsorted
+import wave
+import librosa
+
+from ASR_vanilla import conformer_wav_to_sequence_list, save_string_to_txt
+
+import nemo
+import nemo.collections.asr as nemo_asr
+
+csvfile = "unigram_freq.csv"  # To be changed
 total = 588124220187
 
+eps = 2.2250738585072014e-308
 
-def frequencyOf(str):
-    reader = csv.reader(open(csvfile, newline=""), delimiter=",", quotechar="|")
-    reader.__next__()
-    for row in reader:
-        if row[0] == str:
-            return ((int)(row[1])) / total
-    return 0
-
-
-# print(frequencyOf('the'))
+lambda_ocr = 0.1
 
 specialcharacters = [
     "!",
@@ -62,9 +64,39 @@ specialcharacters = [
 ]
 
 
+def frequencyOf(str):
+    reader = csv.reader(open(csvfile, newline=""), delimiter=",", quotechar="|")
+    reader.__next__()
+    for row in reader:
+        if row[0] == str:
+            return ((int)(row[1])) / total
+    return 0
+
+
 def txt2dict(path):
     file = open(path, "r")
     text = file.read().lower()
+    text = text.replace("\n", " ")
+    for sc in specialcharacters:
+        text = text.replace(sc, " ")
+    arr = text.split(" ")
+    dict = {}
+    cnt = 0
+    for x in arr:
+        if x == "":
+            continue
+        cnt += 1
+        if x in dict:
+            dict[x] = dict[x] + 1
+        else:
+            dict[x] = 1
+    for key, value in dict.items():
+        dict[key] = value / cnt
+    return dict
+
+
+def str2dict(text):
+    text = text.lower()
     text = text.replace("\n", " ")
     for sc in specialcharacters:
         text = text.replace(sc, " ")
@@ -108,15 +140,9 @@ def txts2dict(paths):
     return dict
 
 
-# print(txt2dict('C:/Users/skyba/vscode-workspace/text.txt'))
-
-
 def rational_weight(x):
     val = 1 - 2 / (x + 1)
     return val if val > 0 else 0
-
-
-eps = 2.2250738585072014e-308
 
 
 def relative_frequency(str, dict, weight):
@@ -191,9 +217,6 @@ def test_temp_3():
     plt.show()
 
 
-lambda_ocr = 0.1
-
-
 def freq_score(seq, dict):
     # returns the word frequency score of sequence
     seq = seq.replace("_", " ")
@@ -217,3 +240,63 @@ def fuse(arr, paths):
     for score, seq in arr:
         ret.append(score + lambda_ocr * freq_score(seq, dict), seq)
     return ret
+
+
+def fuse_from_string(arr, str):
+    ret = []
+    dict = str2dict(str)
+    for score, seq in arr:
+        ret.append(score + lambda_ocr * freq_score(seq, dict), seq)
+    return ret
+
+
+if __name__ == "__main__":
+
+    def check_wav_file_has_data(file_path):
+        try:
+            with wave.open(file_path, "rb") as wav_file:
+                frames = wav_file.readframes(-1)
+                return len(frames) > 0
+        except Exception as e:
+            print("Error:", e)
+            return False
+
+    upper_directory = "resampled_splitted_audio"
+    output_directory = "ASR_with_OCR"
+    ocr_directory = "OCR_text"
+
+    # Create the output directory if it doesn't exist
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    directory = zip(
+        natsorted(os.listdir(upper_directory)), natsorted(os.listdir(ocr_directory))
+    )
+    count_file = 0
+
+    for u, o in directory:
+        audios = natsorted(os.listdir(os.path.join(upper_directory, u)))
+
+        cnt = 0
+
+        for line in open(os.path.join(ocr_directory, o), "r").read().split("\n\n"):
+            cnt += 1
+            audio = audios[cnt]
+            if not check_wav_file_has_data(os.path.join(upper_directory, u, audio)):
+                continue
+
+            input_file = os.path.join(upper_directory, u, audio)
+            output_dir = os.path.join(output_directory, u)
+
+            # Create the output subdirectory if it doesn't exist
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
+            seqs = conformer_wav_to_sequence_list(input_file)
+            print("!: ", seqs)
+            fused = fuse_from_string(seqs, line)
+
+            save_string_to_txt(
+                output_dir + "/ASR_with_OCR_" + f"{audio}".replace("wav", "txt"),
+                max(range(len(seqs)), key=lambda x: x[0])[1],
+            )
