@@ -15,8 +15,8 @@ def split_wav_file(start_time, end_time, input_file, output_file):
     start_ms = time_to_milliseconds(start_time)
     end_ms = time_to_milliseconds(end_time)
 
-    if start_ms >= end_ms:
-        return
+    """if start_ms >= end_ms:
+        return"""
 
     sound = AudioSegment.from_file(input_file)
     segment = sound[start_ms:end_ms]
