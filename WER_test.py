@@ -65,7 +65,10 @@ def compare(pure_txtfile, OCR_txtfile):
         ratio = ((float(OCR_wer) - float(pure_wer)) / float(pure_wer)) * 100
         percent.append(ratio)
     for pure_wer, OCR_wer, per in zip(pure, OCR, percent):
-        print(f"pure: {pure_wer}\tOCR: {OCR_wer} ---> {per}% changed")
+        print(
+            # 소수 넷째 자리까지 나타냄.
+            f"pure: {float(pure_wer):.4f}   OCR: {float(OCR_wer):.4f} ---> {per:.4f} % changed"
+        )
 
 
 write_filename = "WER"
