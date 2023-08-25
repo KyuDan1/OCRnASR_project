@@ -10,6 +10,9 @@ from plotly import graph_objects as go
 import nemo
 import nemo.collections.asr as nemo_asr
 
+def softmax(logits):
+    e = np.exp(logits - np.max(logits))
+    return e / e.sum(axis=-1).reshape([logits.shape[0], 1])
 
 am_model_conformer = nemo_asr.models.ASRModel.from_pretrained(
     model_name="stt_en_conformer_ctc_large"
@@ -19,6 +22,25 @@ am_model_conformer.change_attention_model(
 )
 print("loading complete".upper)
 
+# Define number of CPUs to use. Set to the max when processing large batches of log probabilities
+num_cpus = max(os.cpu_count(), 1)
+
+# Set the beam size
+beam_size = 16
+
+# Get the vocabulary size
+vocab = list(am_model_conformer.decoder.vocabulary)
+
+# Beam search
+beam_search = nemo_asr.modules.BeamSearchDecoderWithLM(
+    beam_width=beam_size,
+    lm_path=None,
+    alpha=None,
+    beta=None,
+    vocab=vocab,
+    num_cpus=num_cpus,
+    input_tensor=False,
+)
 
 # AUDIO_FILENAME = 'dli_workspace/data/segment_2.wav' # To be changed
 def conformer_wav_to_transcript(AUDIO_FILENAME):
@@ -46,6 +68,18 @@ def save_string_to_txt(filename, content):
     except Exception as e:
         print(f"error")
 
+def beam_wav_to_sequence_list(AUDIO_FILENAME):
+    files = [AUDIO_FILENAME]
+    logits = am_model_conformer.transcribe(files, logprobs=True)[0]
+    probs = softmax(logits)
+
+    best_sequences = beam_search.forward(
+        log_probs=np.expand_dims(probs, axis=0), log_probs_length=None
+    )
+    #print("Number of best sequences :", len(best_sequences[0]))
+    #print("Best sequences :")
+    #print(best_sequences)
+    return best_sequences[0]
 
 if __name__ == "__main__":
     upper_directory = "resampled_splitted_audio"

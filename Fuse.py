@@ -7,7 +7,7 @@ from natsort import natsorted
 import wave
 import librosa
 
-from ASR_vanilla import conformer_wav_to_sequence_list, save_string_to_txt
+import ASR_vanilla
 
 import nemo
 import nemo.collections.asr as nemo_asr
@@ -292,11 +292,12 @@ if __name__ == "__main__":
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            seqs = conformer_wav_to_sequence_list(input_file)
+            #seqs = conformer_wav_to_sequence_list(input_file)
+            seqs=ASR_vanilla.beam_wav_to_sequence_list(input_file)
             print("!: ", seqs)
             fused = fuse_from_string(seqs, line)
 
-            save_string_to_txt(
+            ASR_vanilla.save_string_to_txt(
                 output_dir + "/ASR_with_OCR_" + f"{audio}".replace("wav", "txt"),
                 max(range(len(seqs)), key=lambda x: x[0])[1],
             )
