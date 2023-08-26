@@ -272,7 +272,7 @@ if __name__ == "__main__":
         for line in open(os.path.join(ocr_directory, o), "r").read().split("\n\n"):
             cnt += 1
             if(line==""): continue
-            if(len(audios)>=cnt): continue
+            if(len(audios)<=cnt): continue
             audio = audios[cnt]
             if not ASR_vanilla.check_wav_file_has_data(os.path.join(upper_directory, u, audio)):
                 continue
@@ -290,7 +290,9 @@ if __name__ == "__main__":
             fused = fuse_from_string(seqs, line)
             print("!: ",fused)
 
+            max_str = max(fused, key=lambda x: x[0])[1]
+
             ASR_vanilla.save_string_to_txt(
                 output_dir + "/ASR_with_OCR_" + f"{audio}".replace("wav", "txt"),
-                max(fused, key=lambda x: x[0])[1],
+                max_str[1:].replace("▁"," "),
             )
