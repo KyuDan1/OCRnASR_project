@@ -4,7 +4,6 @@ import matplotlib.pylab as plt
 import os
 
 from natsort import natsorted
-import wave
 import librosa
 
 import ASR_vanilla
@@ -238,7 +237,7 @@ def fuse(arr, paths):
     ret = []
     dict = txts2dict(paths)
     for score, seq in arr:
-        ret.append(score + lambda_ocr * freq_score(seq, dict), seq)
+        ret.append((score + lambda_ocr * freq_score(seq, dict), seq))
     return ret
 
 
@@ -246,20 +245,11 @@ def fuse_from_string(arr, str):
     ret = []
     dict = str2dict(str)
     for score, seq in arr:
-        ret.append(score + lambda_ocr * freq_score(seq, dict), seq)
+        ret.append((score + lambda_ocr * freq_score(seq, dict), seq))
     return ret
 
 
 if __name__ == "__main__":
-
-    def check_wav_file_has_data(file_path):
-        try:
-            with wave.open(file_path, "rb") as wav_file:
-                frames = wav_file.readframes(-1)
-                return len(frames) > 0
-        except Exception as e:
-            print("Error:", e)
-            return False
 
     upper_directory = "resampled_splitted_audio"
     output_directory = "ASR_with_OCR"
@@ -281,8 +271,10 @@ if __name__ == "__main__":
 
         for line in open(os.path.join(ocr_directory, o), "r").read().split("\n\n"):
             cnt += 1
+            if(line==""): continue
+            if(len(audios)>=cnt): continue
             audio = audios[cnt]
-            if not check_wav_file_has_data(os.path.join(upper_directory, u, audio)):
+            if not ASR_vanilla.check_wav_file_has_data(os.path.join(upper_directory, u, audio)):
                 continue
 
             input_file = os.path.join(upper_directory, u, audio)
@@ -296,8 +288,9 @@ if __name__ == "__main__":
             seqs=ASR_vanilla.beam_wav_to_sequence_list(input_file)
             print("!: ", seqs)
             fused = fuse_from_string(seqs, line)
+            print("!: ",fused)
 
             ASR_vanilla.save_string_to_txt(
                 output_dir + "/ASR_with_OCR_" + f"{audio}".replace("wav", "txt"),
-                max(range(len(seqs)), key=lambda x: x[0])[1],
+                max(fused, key=lambda x: x[0])[1],
             )

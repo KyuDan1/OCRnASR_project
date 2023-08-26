@@ -5,6 +5,8 @@ import librosa
 from IPython.display import Audio, display
 from plotly import graph_objects as go
 
+import wave
+
 # import ipywidgets
 
 import nemo
@@ -41,6 +43,15 @@ beam_search = nemo_asr.modules.BeamSearchDecoderWithLM(
     num_cpus=num_cpus,
     input_tensor=False,
 )
+
+def check_wav_file_has_data(file_path):
+        try:
+            with wave.open(file_path, "rb") as wav_file:
+                frames = wav_file.readframes(-1)
+                return len(frames) > 0
+        except Exception as e:
+            print("Error:", e)
+            return False
 
 # AUDIO_FILENAME = 'dli_workspace/data/segment_2.wav' # To be changed
 def conformer_wav_to_transcript(AUDIO_FILENAME):
