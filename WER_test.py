@@ -43,9 +43,15 @@ def mean_WER_of(out_dir, str_file):
 
     return sum / cnt
 
-
-# example
-out_dir = "pure_ASR_transcript/audio_1-Orientation/"
-str_file = "after_transcript/purified_번역- 1. Orientation.txt"
-# print(WER_of(out_dir, str_file))
-print(mean_WER_of("pure_ASR_transcript", "after_transcript"))
+if(__name__=="__main__"):
+    # example
+    out_dir = "pure_ASR_transcript/audio_1-Orientation/"
+    str_file = "after_transcript/purified_번역- 1. Orientation.txt"
+    print(WER_of(out_dir, str_file))
+    # print(mean_WER_of("pure_ASR_transcript", "after_transcript"))
+    
+    out_dir = "ASR_with_OCR/audio_1-Orientation/"
+    str_file = "after_transcript/purified_번역- 1. Orientation.txt"
+    print(WER_of(out_dir, str_file))
+    # print(mean_WER_of("ASR_with_OCR", "after_transcript"))
+    
