@@ -273,7 +273,7 @@ if __name__ == "__main__":
             cnt += 1
             if(line==""): continue
             if(len(audios)<=cnt): continue
-            audio = audios[cnt]
+            audio = audios[cnt-1]
             if not ASR_vanilla.check_wav_file_has_data(os.path.join(upper_directory, u, audio)):
                 continue
 
