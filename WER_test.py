@@ -3,29 +3,32 @@ import os
 from jiwer import wer
 
 
-def WER_of(out_dir, str_file):
-    def file_to_text(file):
-        with open(file, "r") as f:
-            return f.read()
+def WER_of(out_dir, str_file, write_filename):
+    with open(write_filename, "a") as txtfile:
 
-    outputs = natsort.natsorted(os.listdir(out_dir))
-    # edit part
-    new_outputs = []
-    for i in outputs:
-        new_outputs.append(out_dir + i)
-    output = list(map(file_to_text, new_outputs))
+        def file_to_text(file):
+            with open(file, "r") as f:
+                return f.read()
 
-    with open(str_file, "r") as f:
-        strs = [x for x in f.read().split("\n\n") if x != "**ERROR**"]
+        outputs = natsort.natsorted(os.listdir(out_dir))
+        # edit part
+        new_outputs = []
+        for i in outputs:
+            new_outputs.append(out_dir + i)
+        output = list(map(file_to_text, new_outputs))
 
-    # print(" ".join(output), "\n\n", " ".join(strs))
+        with open(str_file, "r") as f:
+            strs = [x for x in f.read().split("\n\n") if x != "**ERROR**"]
 
-    print("WER of ", out_dir, ": ", wer(" ".join(strs), " ".join(output)))
+        # print(" ".join(output), "\n\n", " ".join(strs))
 
-    return wer(" ".join(strs), " ".join(output))
+        print("WER of ", out_dir, ": ", wer(" ".join(strs), " ".join(output)))
+        txtfile.write(str(wer(" ".join(strs), " ".join(output))) + "\n")
+
+        return wer(" ".join(strs), " ".join(output))
 
 
-def mean_WER_of(out_dir, str_file):
+def mean_WER_of(out_dir, str_file, write_filename):
     out_dir_list = os.listdir(out_dir)
     str_file_list = os.listdir(str_file)
 
@@ -36,22 +39,48 @@ def mean_WER_of(out_dir, str_file):
         list(map((lambda x: str_file + "/" + x), str_file_list))
         # list(map(lambda x: str_file + "/" + x, str_file_list)),
     ):
-        sum += WER_of(o, s)
+        sum += WER_of(o, s, write_filename)
         cnt += 1
 
     print("mean WER of ", out_dir, ": ", sum / cnt)
 
     return sum / cnt
 
-if(__name__=="__main__"):
-    # example
-    out_dir = "pure_ASR_transcript/audio_1-Orientation/"
-    str_file = "after_transcript/purified_번역- 1. Orientation.txt"
-    print(WER_of(out_dir, str_file))
-    # print(mean_WER_of("pure_ASR_transcript", "after_transcript"))
-    
-    out_dir = "ASR_with_OCR/audio_1-Orientation/"
-    str_file = "after_transcript/purified_번역- 1. Orientation.txt"
-    print(WER_of(out_dir, str_file))
-    # print(mean_WER_of("ASR_with_OCR", "after_transcript"))
-    
+
+def read_file_to_list(file_path):
+    lines = []
+    with open(file_path, "r", encoding="utf-8") as file:
+        for line in file:
+            lines.append(line.strip())  # 각 줄의 양쪽 공백 및 개행 문자 제거 후 리스트에 추가
+    return lines
+
+
+def compare(pure_txtfile, OCR_txtfile):
+    pure = []
+    OCR = []
+    percent = []
+    pure = read_file_to_list(pure_txtfile)
+    OCR = read_file_to_list(OCR_txtfile)
+    for pure_wer, OCR_wer in zip(pure, OCR):
+        ratio = ((float(OCR_wer) - float(pure_wer)) / float(pure_wer)) * 100
+        percent.append(ratio)
+    for pure_wer, OCR_wer, per in zip(pure, OCR, percent):
+        print(
+            # 소수 넷째 자리까지 나타냄.
+            f"pure: {float(pure_wer):.4f}   OCR: {float(OCR_wer):.4f} ---> {per:.4f} % changed"
+        )
+
+write_filename = "WER"
+
+# print(WER_of(out_dir, str_file))
+mean_WER_of(
+    "pure_ASR_transcript", "after_transcript", os.path.join(write_filename, "pure.txt")
+)
+mean_WER_of(
+    "ASR_with_OCR", "after_transcript", os.path.join(write_filename, "with_OCR.txt")
+)
+
+compare(
+    os.path.join(write_filename, "pure.txt"),
+    os.path.join(write_filename, "with_OCR.txt"),
+)
