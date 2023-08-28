@@ -29,8 +29,8 @@ def WER_of(out_dir, str_file, write_filename):
 
 
 def mean_WER_of(out_dir, str_file, write_filename):
-    out_dir_list = os.listdir(out_dir)
-    str_file_list = os.listdir(str_file)
+    out_dir_list = natsort.natsorted(os.listdir(out_dir))
+    str_file_list = natsort.natsorted(os.listdir(str_file))
 
     sum = 0
     cnt = 0
@@ -64,10 +64,10 @@ def compare(pure_txtfile, OCR_txtfile):
     for pure_wer, OCR_wer in zip(pure, OCR):
         ratio = ((float(OCR_wer) - float(pure_wer)) / float(pure_wer)) * 100
         percent.append(ratio)
-    for pure_wer, OCR_wer, per in zip(pure, OCR, percent):
+    for i,pure_wer, OCR_wer, per in zip(range(len(pure)),pure, OCR, percent):
         print(
             # 소수 넷째 자리까지 나타냄.
-            f"pure: {float(pure_wer):.4f}   OCR: {float(OCR_wer):.4f} ---> {per:.4f} % changed"
+            f"[{i}] pure: {float(pure_wer):.4f}   OCR: {float(OCR_wer):.4f} ---> {per:.4f} % changed"
         )
 
 write_filename = "WER"
