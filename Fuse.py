@@ -267,13 +267,13 @@ if __name__ == "__main__":
     for u, o in directory:
         audios = natsorted(os.listdir(os.path.join(upper_directory, u)))
 
-        cnt = 0
+        cnt = -1
 
         for line in open(os.path.join(ocr_directory, o), "r").read().split("\n\n"):
             cnt += 1
             if(line==""): continue
             if(len(audios)<=cnt): continue
-            audio = audios[cnt-1]
+            audio = audios[cnt]
             if not ASR_vanilla.check_wav_file_has_data(os.path.join(upper_directory, u, audio)):
                 continue
 
