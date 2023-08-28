@@ -64,23 +64,27 @@ def compare(pure_txtfile, OCR_txtfile):
     for pure_wer, OCR_wer in zip(pure, OCR):
         ratio = ((float(OCR_wer) - float(pure_wer)) / float(pure_wer)) * 100
         percent.append(ratio)
-    for i,pure_wer, OCR_wer, per in zip(range(len(pure)),pure, OCR, percent):
+    for i, pure_wer, OCR_wer, per in zip(range(len(pure)), pure, OCR, percent):
         print(
             # 소수 넷째 자리까지 나타냄.
             f"[{i}] pure: {float(pure_wer):.4f}   OCR: {float(OCR_wer):.4f} ---> {per:.4f} % changed"
         )
 
-write_filename = "WER"
 
-# print(WER_of(out_dir, str_file))
-mean_WER_of(
-    "pure_ASR_transcript", "after_transcript", os.path.join(write_filename, "pure.txt")
-)
-mean_WER_of(
-    "ASR_with_OCR", "after_transcript", os.path.join(write_filename, "with_OCR.txt")
-)
+if __name__ == "__main__":
+    write_filename = "WER"
 
-compare(
-    os.path.join(write_filename, "pure.txt"),
-    os.path.join(write_filename, "with_OCR.txt"),
-)
+    # print(WER_of(out_dir, str_file))
+    mean_WER_of(
+        "pure_ASR_transcript",
+        "after_transcript",
+        os.path.join(write_filename, "pure.txt"),
+    )
+    mean_WER_of(
+        "ASR_with_OCR", "after_transcript", os.path.join(write_filename, "with_OCR.txt")
+    )
+
+    compare(
+        os.path.join(write_filename, "pure.txt"),
+        os.path.join(write_filename, "with_OCR.txt"),
+    )
