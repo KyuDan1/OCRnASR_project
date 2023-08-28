@@ -12,9 +12,11 @@ import wave
 import nemo
 import nemo.collections.asr as nemo_asr
 
+
 def softmax(logits):
     e = np.exp(logits - np.max(logits))
     return e / e.sum(axis=-1).reshape([logits.shape[0], 1])
+
 
 am_model_conformer = nemo_asr.models.ASRModel.from_pretrained(
     model_name="stt_en_conformer_ctc_large"
@@ -44,14 +46,16 @@ beam_search = nemo_asr.modules.BeamSearchDecoderWithLM(
     input_tensor=False,
 )
 
+
 def check_wav_file_has_data(file_path):
-        try:
-            with wave.open(file_path, "rb") as wav_file:
-                frames = wav_file.readframes(-1)
-                return len(frames) > 0
-        except Exception as e:
-            print("Error:", e)
-            return False
+    try:
+        with wave.open(file_path, "rb") as wav_file:
+            frames = wav_file.readframes(-1)
+            return len(frames) > 0
+    except Exception as e:
+        print("Error:", e)
+        return False
+
 
 # AUDIO_FILENAME = 'dli_workspace/data/segment_2.wav' # To be changed
 def conformer_wav_to_transcript(AUDIO_FILENAME):
@@ -79,6 +83,7 @@ def save_string_to_txt(filename, content):
     except Exception as e:
         print(f"error")
 
+
 def beam_wav_to_sequence_list(AUDIO_FILENAME):
     files = [AUDIO_FILENAME]
     logits = am_model_conformer.transcribe(files, logprobs=True)[0]
@@ -87,9 +92,9 @@ def beam_wav_to_sequence_list(AUDIO_FILENAME):
     best_sequences = beam_search.forward(
         log_probs=np.expand_dims(probs, axis=0), log_probs_length=None
     )
-    #print("Number of best sequences :", len(best_sequences[0]))
-    #print("Best sequences :")
-    #print(best_sequences)
+    # print("Number of best sequences :", len(best_sequences[0]))
+    # print("Best sequences :")
+    # print(best_sequences)
     return best_sequences[0]
 
 
@@ -106,15 +111,19 @@ if __name__ == "__main__":
     for file in directory:
         audios = os.listdir(os.path.join(upper_directory, file))
 
+        lecture_transcript = ""
+
+        output_dir = os.path.join(output_directory, file) + ".txt"
+
         for audio in audios:
             input_file = os.path.join(upper_directory, file, audio)
-            output_dir = os.path.join(output_directory, file)
 
-            # Create the output subdirectory if it doesn't exist
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
+            if not check_wav_file_has_data(input_file):
+                continue
 
-            save_string_to_txt(
-                output_dir + "/pureASRtext " + f"{audio}".replace("wav", "txt"),
-                conformer_wav_to_transcript(input_file),
-            )
+            lecture_transcript += "\n" + conformer_wav_to_transcript(input_file)
+
+        save_string_to_txt(
+            output_dir,
+            lecture_transcript[1:],
+        )

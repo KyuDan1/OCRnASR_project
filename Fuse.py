@@ -250,7 +250,6 @@ def fuse_from_string(arr, str):
 
 
 if __name__ == "__main__":
-
     upper_directory = "resampled_splitted_audio"
     output_directory = "ASR_with_OCR"
     ocr_directory = "OCR_text"
@@ -267,32 +266,34 @@ if __name__ == "__main__":
     for u, o in directory:
         audios = natsorted(os.listdir(os.path.join(upper_directory, u)))
 
-        cnt = 0
+        lecture_transcript = ""
+        cnt = -1
 
         for line in open(os.path.join(ocr_directory, o), "r").read().split("\n\n"):
             cnt += 1
-            if(line==""): continue
-            if(len(audios)<=cnt): continue
-            audio = audios[cnt-1]
-            if not ASR_vanilla.check_wav_file_has_data(os.path.join(upper_directory, u, audio)):
+            if line == "":
+                continue
+            if len(audios) <= cnt:
+                continue
+            audio = audios[cnt]
+            if not ASR_vanilla.check_wav_file_has_data(
+                os.path.join(upper_directory, u, audio)
+            ):
                 continue
 
             input_file = os.path.join(upper_directory, u, audio)
-            output_dir = os.path.join(output_directory, u)
+            output_dir = os.path.join(output_directory, u) + ".txt"
 
-            # Create the output subdirectory if it doesn't exist
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
-
-            #seqs = conformer_wav_to_sequence_list(input_file)
-            seqs=ASR_vanilla.beam_wav_to_sequence_list(input_file)
+            # seqs = conformer_wav_to_sequence_list(input_file)
+            seqs = ASR_vanilla.beam_wav_to_sequence_list(input_file)
             print("!: ", seqs)
             fused = fuse_from_string(seqs, line)
-            print("!: ",fused)
+            print("!: ", fused)
 
             max_str = max(fused, key=lambda x: x[0])[1]
+            lecture_transcript += "\n" + max_str[1:].replace("▁", " ")
 
-            ASR_vanilla.save_string_to_txt(
-                output_dir + "/ASR_with_OCR_" + f"{audio}".replace("wav", "txt"),
-                max_str[1:].replace("▁"," "),
-            )
+        ASR_vanilla.save_string_to_txt(
+            output_dir,
+            lecture_transcript[1:],
+        )
