@@ -106,7 +106,7 @@ def get_transcript_txt(input_file):
         if len(text) != 29:
             return False
         if not (
-            (text[0:12] <= text[-12:])
+            (text[0:12] < text[-12:])
             and format_test(text[0:12])
             and format_test(text[0:12])
         ):
@@ -160,7 +160,7 @@ def get_transcript_txt_with_time_extraction(input_file, time_filename):
         if len(text) != 29:
             return False
         if not (
-            (text[0:12] <= text[-12:])
+            (text[0:12] < text[-12:])
             and format_test(text[0:12])
             and format_test(text[0:12])
         ):
