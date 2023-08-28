@@ -64,23 +64,53 @@ def compare(pure_txtfile, OCR_txtfile):
     for pure_wer, OCR_wer in zip(pure, OCR):
         ratio = ((float(OCR_wer) - float(pure_wer)) / float(pure_wer)) * 100
         percent.append(ratio)
-    for i,pure_wer, OCR_wer, per in zip(range(len(pure)),pure, OCR, percent):
+    for i, pure_wer, OCR_wer, per in zip(range(len(pure)), pure, OCR, percent):
         print(
             # 소수 넷째 자리까지 나타냄.
             f"[{i}] pure: {float(pure_wer):.4f}   OCR: {float(OCR_wer):.4f} ---> {per:.4f} % changed"
         )
 
-write_filename = "WER"
 
-# print(WER_of(out_dir, str_file))
-mean_WER_of(
-    "pure_ASR_transcript", "after_transcript", os.path.join(write_filename, "pure.txt")
-)
-mean_WER_of(
-    "ASR_with_OCR", "after_transcript", os.path.join(write_filename, "with_OCR.txt")
-)
+def batch_WER(file1, file2):
+    str1 = open(file1, "r").read().replace("\n", " ").replace("  ", " ")
+    str2 = open(file2, "r").read().replace("\n", " ").replace("  ", " ")
+    return wer(str1, str2)
 
-compare(
-    os.path.join(write_filename, "pure.txt"),
-    os.path.join(write_filename, "with_OCR.txt"),
-)
+
+def mean_batch_WER(dir1, dir2):
+    dir1_list = natsort.natsorted(os.listdir(dir1))
+    dir2_list = natsort.natsorted(os.listdir(dir2))
+
+    sum = 0
+    cnt = 0
+    for f1, f2 in zip(dir1_list, dir2_list):
+        sum += batch_WER(os.path.join(dir1, f1), os.path.join(dir2, f2))
+        cnt += 1
+
+    print("mean WER of ", dir1, ": ", sum / cnt)
+
+    return sum / cnt
+
+
+if __name__ == "__main__":
+    """
+    write_filename = "WER"
+
+    # print(WER_of(out_dir, str_file))
+
+    mean_WER_of(
+        "pure_ASR_transcript",
+        "after_transcript",
+        os.path.join(write_filename, "pure.txt"),
+    )
+    mean_WER_of(
+        "ASR_with_OCR", "after_transcript", os.path.join(write_filename, "with_OCR.txt")
+    )
+
+    compare(
+        os.path.join(write_filename, "pure.txt"),
+        os.path.join(write_filename, "with_OCR.txt"),
+    )
+    """
+    mean_batch_WER("pure_ASR_transcript", "after_transcript")
+    mean_batch_WER("ASR_with_OCR", "after_transcript")
