@@ -1,5 +1,7 @@
 import os
 
+import natsort
+
 import numpy as np
 import librosa
 from IPython.display import Audio, display
@@ -109,7 +111,7 @@ if __name__ == "__main__":
     directory = os.listdir(upper_directory)
     count_file = 0
     for file in directory:
-        audios = os.listdir(os.path.join(upper_directory, file))
+        audios = natsort.natsorted(os.listdir(os.path.join(upper_directory, file)))
 
         lecture_transcript = ""
 
@@ -118,8 +120,10 @@ if __name__ == "__main__":
         for audio in audios:
             input_file = os.path.join(upper_directory, file, audio)
 
+            """
             if not check_wav_file_has_data(input_file):
                 continue
+            """
 
             lecture_transcript += "\n" + conformer_wav_to_transcript(input_file)
 
