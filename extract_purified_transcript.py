@@ -1,7 +1,7 @@
 import os
 import re
 
-error_code = "**ERROR**"
+error_code = "ERROR"
 specialcharacters = [
     "!",
     '"',
@@ -128,7 +128,8 @@ def get_transcript_txt(input_file):
         if time_valid(ext_time):
             new_lines.append(" ".join(lines[2:]))
         else:
-            new_lines.append(error_code)
+            # new_lines.append(error_code)
+            pass
 
     return new_lines
 
@@ -184,9 +185,10 @@ def get_transcript_txt_with_time_extraction(input_file, time_filename):
             ext_times += "\n" + ext_time
             new_lines.append(" ".join(lines[2:]))
         else:
-            new_lines.append(error_code)
+            # new_lines.append(error_code)
+            pass
 
-    open(time_filename, "w").write(ext_times)
+    open(time_filename, "w").write(ext_times[1:])
 
     return new_lines
 
@@ -198,8 +200,10 @@ def remove_duplicate_sentences(list):
         i = i - 1
         str0 = result[i - 1]
         str1 = result[i]
+        """
         if str0 == error_code:
             continue
+        """
         l = len(str0)
         if str1[0:l] == str0:
             result[i] = str1[l:].strip()
