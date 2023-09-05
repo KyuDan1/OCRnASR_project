@@ -6,25 +6,28 @@ from IPython.display import Audio, display
 from plotly import graph_objects as go
 
 import wave
-
+import whisper
 # import ipywidgets
 
-import nemo
-import nemo.collections.asr as nemo_asr
+#import nemo
+#import nemo.collections.asr as nemo_asr
 
 def softmax(logits):
     e = np.exp(logits - np.max(logits))
     return e / e.sum(axis=-1).reshape([logits.shape[0], 1])
 
-am_model_conformer = nemo_asr.models.ASRModel.from_pretrained(
+"""am_model_conformer = nemo_asr.models.ASRModel.from_pretrained(
     model_name="stt_en_conformer_ctc_large"
 )
 am_model_conformer.change_attention_model(
     self_attention_model="rel_pos_local_attn", att_context_size=[128, 128]
-)
+)"""
+
+model = whisper.load_model("base")
+
 print("loading complete".upper)
 
-# Define number of CPUs to use. Set to the max when processing large batches of log probabilities
+"""# Define number of CPUs to use. Set to the max when processing large batches of log probabilities
 num_cpus = max(os.cpu_count(), 1)
 
 # Set the beam size
@@ -42,7 +45,7 @@ beam_search = nemo_asr.modules.BeamSearchDecoderWithLM(
     vocab=vocab,
     num_cpus=num_cpus,
     input_tensor=False,
-)
+)"""
 
 def check_wav_file_has_data(file_path):
         try:
@@ -54,21 +57,21 @@ def check_wav_file_has_data(file_path):
             return False
 
 # AUDIO_FILENAME = 'dli_workspace/data/segment_2.wav' # To be changed
-def conformer_wav_to_transcript(AUDIO_FILENAME):
+def whisper_wav_to_transcript(AUDIO_FILENAME):
     # load audio signal with librosa
-    signal, sample_rate = librosa.load(AUDIO_FILENAME, sr=16000)
+    #signal, sample_rate = librosa.load(AUDIO_FILENAME, sr=16000)
     # duration=librosa.get_duration(y=signal, sr=sample_rate)
     # print("Duration:", duration)
     # print("Native sample rate:", sample_rate)
-    files = [AUDIO_FILENAME]
-    transcript = am_model_conformer.transcribe(paths2audio_files=files)[0]
+    #files = [AUDIO_FILENAME]
+    transcript = model.transcribe(AUDIO_FILENAME)["text"]
     return transcript
 
 
-def conformer_wav_to_sequence_list(AUDIO_FILENAME):
+"""def conformer_wav_to_sequence_list(AUDIO_FILENAME):
     files = [AUDIO_FILENAME]
     transcript = am_model_conformer.transcribe(files, logprobs=True)[0]
-    return transcript
+    return transcript"""
 
 
 def save_string_to_txt(filename, content):
@@ -79,7 +82,7 @@ def save_string_to_txt(filename, content):
     except Exception as e:
         print(f"error")
 
-def beam_wav_to_sequence_list(AUDIO_FILENAME):
+"""def beam_wav_to_sequence_list(AUDIO_FILENAME):
     files = [AUDIO_FILENAME]
     logits = am_model_conformer.transcribe(files, logprobs=True)[0]
     probs = softmax(logits)
@@ -90,7 +93,7 @@ def beam_wav_to_sequence_list(AUDIO_FILENAME):
     #print("Number of best sequences :", len(best_sequences[0]))
     #print("Best sequences :")
     #print(best_sequences)
-    return best_sequences[0]
+    return best_sequences[0]"""
 
 
 if __name__ == "__main__":
@@ -116,5 +119,5 @@ if __name__ == "__main__":
 
             save_string_to_txt(
                 output_dir + "/pureASRtext " + f"{audio}".replace("wav", "txt"),
-                conformer_wav_to_transcript(input_file),
+                whisper_wav_to_transcript(input_file),
             )
