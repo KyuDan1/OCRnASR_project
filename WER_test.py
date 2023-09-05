@@ -80,11 +80,12 @@ if __name__ == "__main__":
         "after_transcript",
         os.path.join(write_filename, "pure.txt"),
     )
-    mean_WER_of(
+    """mean_WER_of(
         "ASR_with_OCR", "after_transcript", os.path.join(write_filename, "with_OCR.txt")
-    )
-
+    )"""
+    """
     compare(
         os.path.join(write_filename, "pure.txt"),
         os.path.join(write_filename, "with_OCR.txt"),
     )
+    """
