@@ -12,7 +12,11 @@ import nemo
 import nemo.collections.asr as nemo_asr
 
 csvfile = "unigram_freq.csv"  # To be changed
+
 total = 588124220187
+least = 12711
+
+power_const = -1
 
 eps = 2.2250738585072014e-308
 
@@ -62,6 +66,69 @@ specialcharacters = [
     "0",
 ]
 
+substitutions = [
+    ("let's", "let us"),
+    #
+    ("can't", "cannot"),
+    ("don't", "do not"),
+    ("doesn't", "does not"),
+    ("ain't", "am not"),
+    ("isn't", "is not"),
+    ("aren't", "are not"),
+    ("wasn't", "was not"),
+    ("weren't", "were not"),
+    ("haven't", "have not"),
+    ("hasn't", "has not"),
+    ("hadn't", "had not"),
+    ("won't", "will not"),
+    ("wouldn't", "would not"),
+    ("shouldn't", "should not"),
+    ("couldn't", "could not"),
+    ("mustn't", "must not"),
+    ("shan't", "shall not"),
+    #
+    ("i'm", "i am"),
+    ("it's", "it is"),
+    ("he's", "he is"),
+    ("she's", "she is"),
+    ("they're", "they are"),
+    ("you're", "you are"),
+    #
+    ("i'll", "i will"),
+    ("it'll", "it will"),
+    ("he'll", "he will"),
+    ("she'll", "she will"),
+    ("they'll", "they will"),
+    ("you'll", "you will"),
+    ("we'll", "we will"),
+    #
+    ("i've", "i have"),
+    ("they've", "they have"),
+    ("you've", "you have"),
+    ("we've", "we have"),
+    #
+    ("i'd", "i would"),
+    ("it'd", "it would"),
+    ("he'd", "he would"),
+    ("she'd", "she would"),
+    ("you'd", "you would"),
+    #
+    ("y'all", "you all"),
+    ("in'", "ing"),
+    ("'t", "it "),
+    #
+    ("o'clock", "oclock"),
+    #
+    ("'s", ""),
+]
+
+
+def substitute(str):
+    ret = str
+    for x, y in substitutions:
+        ret = ret.replace(x, y)
+    return ret
+
 
 def frequencyOf(str):
     reader = csv.reader(open(csvfile, newline=""), delimiter=",", quotechar="|")
@@ -70,6 +137,41 @@ def frequencyOf(str):
         if row[0] == str:
             return ((int)(row[1])) / total
     return 0
+
+
+def originalFrequencyOf(str):
+    reader = csv.reader(open(csvfile, newline=""), delimiter=",", quotechar="|")
+    reader.__next__()
+    for row in reader:
+        if row[0] == str:
+            return int(row[1])
+    return least
+
+
+def nf_dict_from_lf_dict():
+    global lf_dict
+    global nf_dict
+    words = lf_dict.keys()
+
+    _d = {}
+    sum = 0
+
+    reader = csv.reader(open(csvfile, newline=""), delimiter=",", quotechar="|")
+    reader.__next__()
+    for row in reader:
+        if row[0] in words:
+            _n = int(row[1])
+            _d[row[0]] = _n
+            sum += _n
+    keys = _d.keys()
+    for w in words:
+        if w not in keys:
+            _d[w] = least
+            sum += least
+
+    nf_dict = {}
+    for w in _d.keys():
+        nf_dict[w] = _d[w] / sum
 
 
 def txt2dict(path):
@@ -95,8 +197,15 @@ def txt2dict(path):
 
 
 def str2dict(text):
+    # input: string
+    # output: {word,LF(word)} dictionary
+
     text = text.lower()
     text = text.replace("\n", " ")
+
+    # 2023-11-19
+    text = substitute(text)
+
     for sc in specialcharacters:
         text = text.replace(sc, " ")
     arr = text.split(" ")
@@ -112,6 +221,11 @@ def str2dict(text):
             dict[x] = 1
     for key, value in dict.items():
         dict[key] = value / cnt
+
+    global lf_dict
+    lf_dict = dict
+    nf_dict_from_lf_dict()
+
     return dict
 
 
@@ -148,8 +262,8 @@ def relative_frequency(str, dict, weight):
     freq = 0
     over = 0
     if str in dict:
-        over = dict[str]
-    under = frequencyOf(str)
+        over = dict[str]  # LF
+    under = frequencyOf(str)  # NF
     if under == 0:
         # under = eps
         return weight(1) if over == 0 else -1
@@ -233,6 +347,45 @@ def freq_score(seq, dict):
     return sum / cnt if cnt > 0 else -1
 
 
+def truncated_rf(word):
+    # truncated RF; RF=1 whenever LF<NF
+    # RF=1 for NF=0
+
+    global lf_dict
+    global nf_dict
+
+    upper = 0
+    under = 0
+
+    if word in lf_dict.keys():
+        upper = lf_dict[word]
+    if word in nf_dict.keys():
+        under = nf_dict[word]
+    if upper < under or under == 0:
+        ret = 1
+    else:
+        ret = upper / under
+
+    return ret
+
+
+def truncated_rf_score(seq):
+    # returns the rf score of sequence
+    # truncated RF; RF=1 whenever LF<NF
+
+    seq = seq.replace("_", " ")
+    arr = seq.split(" ")
+    cnt = 0
+    sum = 0
+
+    for a in arr:
+        if a == "":
+            continue
+        cnt += 1
+        sum += -1 * math.pow(truncated_rf(a), power_const)
+    return sum / cnt if cnt > 0 else -1
+
+
 def fuse(arr, paths):
     ret = []
     dict = txts2dict(paths)
@@ -243,9 +396,10 @@ def fuse(arr, paths):
 
 def fuse_from_string(arr, str):
     ret = []
-    dict = str2dict(str)
+    str2dict(str)
     for score, seq in arr:
-        ret.append((score + lambda_ocr * freq_score(seq, dict), seq))
+        # ret.append((score + lambda_ocr * freq_score(seq, dict), seq))
+        ret.append((score + lambda_ocr * truncated_rf_score(seq), seq))
     return ret
 
 
