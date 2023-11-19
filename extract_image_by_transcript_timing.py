@@ -22,9 +22,9 @@ def time_to_milliseconds(time_str):
     return milliseconds
 
 
+"""
 if __name__ == "main":
     # timing from transcript
-    """
     input_video_directory = "MoonSoomook_Advanced_compiler"
     time_info_directory = "time_info"
     ordered_listdir_name_wav = natsort.natsorted(os.listdir(input_video_directory))
@@ -80,10 +80,11 @@ if __name__ == "main":
                     print(f"{frame_filename} extracted.")
 
             cap.release()
-    """
+"""
 
+
+def extract_image(input_video_directory, output_frame_directory):
     # fixed time interval
-    input_video_directory = "MoonSoomook_Advanced_compiler"
 
     ordered_listdir_name_wav = natsort.natsorted(os.listdir(input_video_directory))
 
@@ -119,7 +120,7 @@ if __name__ == "main":
                 target_time = "%d_%02d_%02d" % (hours, minutes, seconds)
 
                 # 추출된 프레임 저장 또는 처리
-                folder = f'images_timing/{wav_filename.replace(".mp4","")}/'
+                folder = f'{output_frame_directory}/{wav_filename.replace(".mp4","")}/'
                 os.makedirs(folder, exist_ok=True)  # 폴더가 이미 존재하면 무시하도록 수정
                 frame_filename = f"{folder}frame_{target_time}.jpg"
                 cv2.imwrite(frame_filename, frame)
@@ -128,3 +129,25 @@ if __name__ == "main":
 
             cap.release()
     print("All complete.")
+
+
+if __name__ == "main":
+    input_folder = "files_to_process"
+    output_folder = "lecture_images"
+    original_folder = "lecture_videos"
+
+    input_lectures = os.listdir(input_folder)
+
+    # input_video_directory = "MoonSoomook_Advanced_compiler"
+
+    for elt in input_lectures:
+        input_path = os.path.join(input_folder, elt)
+        output_path = os.path.join(output_folder, elt)
+        original_path = os.path.join(original_folder, elt)
+
+        extract_image(input_path, output_path)
+
+        # move files
+        files = os.listdir(input_path)
+        for f in files:
+            os.rename(os.path.join(input_path, f), os.path.join(original_path, f))
