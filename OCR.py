@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import easyocr
 
@@ -36,10 +37,10 @@ if __name__ == "main":
                             file.write(str(item) + " ")
                         file.write("\n\n")
 
-                        print(f"OCR text is generated {image}")
+                        print("OCR text is generated ", image)
                     else:
                         print("ERROR")
-                print(f"-----OCR text is generated {lecture}-----")
+                print("-----OCR text is generated ", lecture, "-----")
 
             # move files
             for image in images:

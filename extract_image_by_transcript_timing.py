@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import cv2
 import os
 import natsort
@@ -91,7 +92,14 @@ def extract_image(input_video_directory, output_frame_directory):
     for wav_filename in ordered_listdir_name_wav:
         wav_file_path = os.path.join(input_video_directory, wav_filename)
 
-        print(f"extracting images from {wav_file_path} with interval {TIME_INTERVAL}s")
+        # print(f"extracting images from {wav_file_path} with interval {TIME_INTERVAL}s")
+        print(
+            "extracting images from ",
+            wav_file_path,
+            " with interval ",
+            TIME_INTERVAL,
+            "s",
+        )
         # 동영상 열기
         cap = cv2.VideoCapture(wav_file_path)
 
@@ -120,12 +128,17 @@ def extract_image(input_video_directory, output_frame_directory):
                 target_time = "%d_%02d_%02d" % (hours, minutes, seconds)
 
                 # 추출된 프레임 저장 또는 처리
-                folder = f'{output_frame_directory}/{wav_filename.replace(".mp4","")}/'
+                folder = (
+                    output_frame_directory
+                    + "/"
+                    + wav_filename.replace(".mp4", "")
+                    + "/"
+                )
                 os.makedirs(folder, exist_ok=True)  # 폴더가 이미 존재하면 무시하도록 수정
-                frame_filename = f"{folder}frame_{target_time}.jpg"
+                frame_filename = folder + "frame_" + target_time + ".jpg"
                 cv2.imwrite(frame_filename, frame)
 
-                print(f"{frame_filename} extracted.")
+                print(frame_filename, " extracted.")
 
             cap.release()
     print("All complete.")
