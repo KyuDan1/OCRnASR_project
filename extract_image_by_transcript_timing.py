@@ -107,7 +107,7 @@ def extract_image(input_video_directory, output_frame_directory):
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         # duration = frame_count / fps
 
-        frame_interval = TIME_INTERVAL * fps
+        frame_interval = int(TIME_INTERVAL * fps)
 
         last_frame = int(frame_count / frame_interval) * frame_interval
         target_frames = range(0, last_frame, frame_interval)
