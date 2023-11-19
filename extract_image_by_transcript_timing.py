@@ -144,7 +144,7 @@ def extract_image(input_video_directory, output_frame_directory):
     print("All complete.")
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     input_folder = "files_to_process"
     output_folder = "lecture_images"
     original_folder = "lecture_videos"

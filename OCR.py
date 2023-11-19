@@ -9,7 +9,7 @@ reader = easyocr.Reader(
 )  # this needs to run only once to load the model into memory
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     # upper_directory = "images_timing"
     input_directory = "files_to_process"
     original_directory = "lecture_images"
