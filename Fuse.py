@@ -72,7 +72,7 @@ substitutions = [
     ("can't", "cannot"),
     ("don't", "do not"),
     ("doesn't", "does not"),
-    ("ain't", "am not"),
+    ("ain't", "aint"),
     ("isn't", "is not"),
     ("aren't", "are not"),
     ("wasn't", "was not"),
