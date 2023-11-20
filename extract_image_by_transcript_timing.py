@@ -164,3 +164,4 @@ if __name__ == "__main__":
         files = os.listdir(input_path)
         for f in files:
             os.renames(os.path.join(input_path, f), os.path.join(original_path, f))
+    os.makedirs(input_folder, exist_ok=True)
