@@ -23,10 +23,10 @@ if __name__ == "__main__":
         # direcory = ['lec1','lec2','lec3','lec4']
         for lecture in directories:
             images = os.listdir(os.path.join(upper_directory, lecture))
+            temp_out = output_directory + "/" + upper_directory_0
+            os.makedirs(temp_out, exist_ok=True)
             # open the txt file
-            with open(
-                output_directory + "/" + upper_directory_0 + "/" + lecture + ".txt", "w"
-            ) as file:
+            with open(temp_out + "/" + lecture + ".txt", "w") as file:
                 for image in images:
                     f = os.path.join(upper_directory, lecture, image)
                     if os.path.isfile(f):
