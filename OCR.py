@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
             # move files
             for image in images:
-                os.rename(
+                os.renames(
                     os.path.join(upper_directory, lecture, image),
                     os.path.join(original_directory, upper_directory_0, lecture, image),
                 )

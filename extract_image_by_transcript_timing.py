@@ -163,4 +163,4 @@ if __name__ == "__main__":
         # move files
         files = os.listdir(input_path)
         for f in files:
-            os.rename(os.path.join(input_path, f), os.path.join(original_path, f))
+            os.renames(os.path.join(input_path, f), os.path.join(original_path, f))
