@@ -1,4 +1,6 @@
 from moviepy.editor import *
+import os
+
 
 def mp4_to_wav(mp4_file_path, wav_file_path):
     try:
@@ -17,11 +19,26 @@ def mp4_to_wav(mp4_file_path, wav_file_path):
         print(f"Error occurred during conversion: {e}")
 
 
-    
+if __name__ == "__main__":
+    # directory = 'MoonSoomook_Advanced_compiler'
+    input_directory = "files_to_process"
+    output_directory = "audio"
+    original_directory = "lecture_videos"
 
+    for subdirectory in os.listdir(input_directory):
+        d = os.path.join(input_directory, subdirectory)
+        os.makedirs(os.path.join(output_directory, subdirectory), exist_ok=True)
 
-directory = 'MoonSoomook_Advanced_compiler'
-for filename in os.listdir(directory):
-    f = os.path.join(directory,filename)
-    mp4_to_wav(f, f'audio/audio_{filename}'.replace("mp4","wav"))
+        for filename in os.listdir(d):
+            f = os.path.join(d, filename)
+            mp4_to_wav(
+                f,
+                f"{output_directory}/{subdirectory}/audio_{filename}".replace(
+                    "mp4", "wav"
+                ),
+            )
 
+            # move files
+            os.renames(f, os.path.join(original_directory, subdirectory, filename))
+
+    os.makedirs(input_directory, exist_ok=True)

@@ -114,5 +114,31 @@ if __name__ == "__main__":
         os.path.join(write_filename, "with_OCR.txt"),
     )
     """
-    mean_batch_WER("pure_ASR_transcript", "after_transcript")
-    mean_batch_WER("ASR_with_OCR", "after_transcript")
+
+    # mean_batch_WER("pure_ASR_transcript", "after_transcript")
+    # mean_batch_WER("ASR_with_OCR", "after_transcript")
+
+    input_directory = "files_to_process"
+    pure_directory = "pure_ASR_transcript"
+    fused_directory = "ASR_with_OCR"
+    ref_directory = "after_transcript"
+
+    for subdirectory in os.listdir(input_directory):
+        print(f"WER of lecture {subdirectory}:")
+        mean_batch_WER(
+            os.path.join(input_directory, subdirectory),
+            os.path.join(ref_directory, subdirectory),
+        )
+        mean_batch_WER(
+            os.path.join(fused_directory, subdirectory),
+            os.path.join(ref_directory, subdirectory),
+        )
+        print("")
+
+        # move files
+        os.renames(
+            os.path.join(input_directory, subdirectory),
+            os.path.join(pure_directory, subdirectory),
+        )
+
+    os.makedirs(input_directory, exist_ok=True)

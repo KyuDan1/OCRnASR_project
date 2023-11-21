@@ -41,28 +41,49 @@ def split_wav_file(start_time, end_time, input_file, output_file):
 
 if __name__ == "__main__":
     # input_wav_directory = "audio"
-    input_wav_directory = "resampled_audio"
+    input_wav_directory = "files_to_process"
     time_info_directory = "time_info"
-    ordered_listdir_name_wav = natsort.natsorted(os.listdir(input_wav_directory))
-    ordered_listdir_name_time_info = natsort.natsorted(os.listdir(time_info_directory))
+    output_directory = "resampled_splitted_audio"
 
-    for wav_filename, time_info_file in zip(
-        ordered_listdir_name_wav, ordered_listdir_name_time_info
-    ):
-        wav_file_path = os.path.join(input_wav_directory, wav_filename)
-        timing_file_path = os.path.join(time_info_directory, time_info_file)
-        print(f"operating {wav_file_path} and {timing_file_path}")
-        # 여기부터 수정
-        with open(timing_file_path, "r") as file:
-            time_ranges = [line.strip().split(" --> ") for line in file]
+    original_wav_directory = "resampled_audio"
 
-        # 반복문으로 WAV 파일을 분할
-        for i, (start_time, end_time) in enumerate(time_ranges, start=1):
-            folder = f"resampled_splitted_audio/{wav_filename}".replace(".wav", "")
-            output_file = folder + f"/output{i}.wav"
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-            split_wav_file(start_time, end_time, wav_file_path, output_file)
-            print(f"{output_file} complete.")
+    for subdirectory in os.listdir(input_wav_directory):
+        d = os.path.join(input_wav_directory, subdirectory)
+
+        ordered_listdir_name_wav = natsort.natsorted(os.listdir(d))
+        ordered_listdir_name_time_info = natsort.natsorted(
+            os.listdir(os.path.join(time_info_directory, subdirectory))
+        )
+
+        for wav_filename, time_info_file in zip(
+            ordered_listdir_name_wav, ordered_listdir_name_time_info
+        ):
+            wav_file_path = os.path.join(d, wav_filename)
+            timing_file_path = os.path.join(
+                time_info_directory, subdirectory, time_info_file
+            )
+            print(f"operating {wav_file_path} and {timing_file_path}")
+            # 여기부터 수정
+            with open(timing_file_path, "r") as file:
+                time_ranges = [line.strip().split(" --> ") for line in file]
+
+            # 반복문으로 WAV 파일을 분할
+            for i, (start_time, end_time) in enumerate(time_ranges, start=1):
+                folder = f"{output_directory}/{subdirectory}/{wav_filename}".replace(
+                    ".wav", ""
+                )
+                output_file = folder + f"/output{i}.wav"
+                if not os.path.exists(folder):
+                    os.makedirs(folder)
+                split_wav_file(start_time, end_time, wav_file_path, output_file)
+                print(f"{output_file} complete.")
+
+            # move files
+            os.renames(
+                wav_file_path,
+                os.path.join(original_wav_directory, subdirectory, wav_filename),
+            )
+
+    os.makedirs(input_wav_directory, exist_ok=True)
 
     print("All complete.")

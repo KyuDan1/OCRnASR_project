@@ -101,33 +101,42 @@ def beam_wav_to_sequence_list(AUDIO_FILENAME):
 
 
 if __name__ == "__main__":
-    upper_directory = "resampled_splitted_audio"
+    input_directory = "files_to_process"
     output_directory = "pure_ASR_transcript"
+    original_directory = "resampled_splitted_audio"
 
-    # Create the output directory if it doesn't exist
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
+    for subdirectory in os.listdir(input_directory):
+        # Create the output directory if it doesn't exist
+        od = os.path.join(output_directory, subdirectory)
+        if not os.path.exists(od):
+            os.makedirs(od)
 
-    directory = os.listdir(upper_directory)
-    count_file = 0
-    for file in directory:
-        audios = natsort.natsorted(os.listdir(os.path.join(upper_directory, file)))
+        d = os.path.join(input_directory, subdirectory)
 
-        lecture_transcript = ""
+        directory = os.listdir(d)
+        count_file = 0
+        for file in directory:
+            audios = natsort.natsorted(os.listdir(os.path.join(d, file)))
 
-        output_dir = os.path.join(output_directory, file) + ".txt"
+            lecture_transcript = ""
 
-        for audio in audios:
-            input_file = os.path.join(upper_directory, file, audio)
+            output_dir = os.path.join(output_directory, subdirectory, file) + ".txt"
 
-            """
-            if not check_wav_file_has_data(input_file):
-                continue
-            """
+            for audio in audios:
+                input_file = os.path.join(d, file, audio)
 
-            lecture_transcript += "\n" + conformer_wav_to_transcript(input_file)
+                """
+                if not check_wav_file_has_data(input_file):
+                    continue
+                """
 
-        save_string_to_txt(
-            output_dir,
-            lecture_transcript[1:],
-        )
+                lecture_transcript += "\n" + conformer_wav_to_transcript(input_file)
+
+            save_string_to_txt(
+                output_dir,
+                lecture_transcript[1:],
+            )
+
+        os.renames(d, os.path.join(original_directory, subdirectory))
+
+    os.makedirs(input_directory, exist_ok=True)

@@ -246,19 +246,43 @@ def remove_duplicate_sentences(sentences):
 if __name__ == "__main__":
     # 특정 패턴을 지정합니다.
     # pattern = r"(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3}\n)|\n"
-    directory = "transcript"
-    for filename in os.listdir(directory):
-        f = os.path.join(directory, filename)
-        # transcripts = get_transcript_txt(f, pattern)
-        # transcripts = get_transcript_txt(f)
-        transcripts = get_transcript_txt_with_time_extraction(
-            f, f"time_info/time_infor_{filename}"
+
+    # directory = "transcript"
+    input_directory = "files_to_process"
+    output_directory_1 = "time_info"
+    output_directory_2 = "after_transcript"
+    original_directory = "transcript"
+
+    subdirectories = os.listdir(input_directory)
+    for subdirectory in subdirectories:
+        d = os.path.join(input_directory, subdirectory)
+
+        os.makedirs(
+            f"{output_directory_1}/{subdirectory}",
+            exist_ok=True,
         )
-        list_to_txt(
-            remove_duplicate_sentences(
-                [del_punct(transcript) for transcript in transcripts]
-            ),
-            f"after_transcript/purified_{filename}",
+        os.makedirs(
+            f"{output_directory_2}/{subdirectory}",
+            exist_ok=True,
         )
-        # print(transcripts)
-        # list_to_txt(transcripts,f'after_transcript/purified_{filename}')
+
+        for filename in os.listdir(d):
+            f = os.path.join(d, filename)
+            # transcripts = get_transcript_txt(f, pattern)
+            # transcripts = get_transcript_txt(f)
+            transcripts = get_transcript_txt_with_time_extraction(
+                f, f"{output_directory_1}/{subdirectory}/time_infor_{filename}"
+            )
+            list_to_txt(
+                remove_duplicate_sentences(
+                    [del_punct(transcript) for transcript in transcripts]
+                ),
+                f"{output_directory_2}/{subdirectory}/purified_{filename}",
+            )
+            # print(transcripts)
+            # list_to_txt(transcripts,f'after_transcript/purified_{filename}')
+
+            # move files
+            os.renames(f, os.path.join(original_directory, subdirectory, filename))
+
+    os.makedirs(input_directory, exist_ok=True)

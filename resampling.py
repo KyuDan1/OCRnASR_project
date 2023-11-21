@@ -52,4 +52,23 @@ if __name__ == "__main__":
     output_directory = 'resampled_splitted_audio'
     resample_after_split(upper_directory,output_directory)
     """
-    resample_before_split("audio", "resampled_audio")
+    # resample_before_split("audio", "resampled_audio")
+
+    input_directory = "files_to_process"
+    output_directory = "resampled_audio"
+    original_directory = "audio"
+
+    for subdirectory in os.listdir(input_directory):
+        d = os.path.join(input_directory, subdirectory)
+        resample_before_split(
+            d,
+            os.path.join(output_directory, subdirectory),
+        )
+
+        # move files
+        os.renames(
+            d,
+            os.path.join(original_directory, subdirectory),
+        )
+
+    os.makedirs(input_directory, exist_ok=True)
