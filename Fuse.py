@@ -404,50 +404,65 @@ def fuse_from_string(arr, str):
 
 
 if __name__ == "__main__":
-    upper_directory = "resampled_splitted_audio"
+    input_directory = "files_to_process"
     output_directory = "ASR_with_OCR"
     ocr_directory = "OCR_text"
+    original_directory = "resampled_splitted_audio"
 
-    # Create the output directory if it doesn't exist
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
+    for subdirectory in os.listdir(input_directory):
+        # Create the output directory if it doesn't exist
+        od = os.path.join(output_directory, subdirectory)
+        if not os.path.exists(od):
+            os.makedirs(od)
 
-    directory = zip(
-        natsorted(os.listdir(upper_directory)), natsorted(os.listdir(ocr_directory))
-    )
-    count_file = 0
+        d = os.path.join(input_directory, subdirectory)
 
-    for u, o in directory:
-        audios = natsorted(os.listdir(os.path.join(upper_directory, u)))
-
-        lecture_transcript = ""
-        cnt = -1
-
-        for line in open(os.path.join(ocr_directory, o), "r").read().split("\n\n"):
-            cnt += 1
-            if line == "":
-                continue
-            if len(audios) <= cnt:
-                continue
-            audio = audios[cnt]
-            if not ASR_vanilla.check_wav_file_has_data(
-                os.path.join(upper_directory, u, audio)
-            ):
-                continue
-
-            input_file = os.path.join(upper_directory, u, audio)
-            output_dir = os.path.join(output_directory, u) + ".txt"
-
-            # seqs = conformer_wav_to_sequence_list(input_file)
-            seqs = ASR_vanilla.beam_wav_to_sequence_list(input_file)
-            print("!: ", seqs)
-            fused = fuse_from_string(seqs, line)
-            print("!: ", fused)
-
-            max_str = max(fused, key=lambda x: x[0])[1]
-            lecture_transcript += "\n" + max_str[1:].replace("▁", " ")
-
-        ASR_vanilla.save_string_to_txt(
-            output_dir,
-            lecture_transcript[1:],
+        directory = zip(
+            natsorted(os.listdir(d)),
+            natsorted(os.listdir(os.path.join(ocr_directory, subdirectory))),
         )
+        count_file = 0
+
+        for u, o in directory:
+            output_dir = os.path.join(od, u) + ".txt"
+
+            audios = natsorted(os.listdir(os.path.join(d, u)))
+
+            lecture_transcript = ""
+            cnt = -1
+
+            for line in (
+                open(os.path.join(ocr_directory, subdirectory, o), "r")
+                .read()
+                .split("\n\n")
+            ):
+                cnt += 1
+                if line == "":
+                    continue
+                if len(audios) <= cnt:
+                    continue
+                audio = audios[cnt]
+
+                input_file = os.path.join(d, u, audio)
+
+                if not ASR_vanilla.check_wav_file_has_data(input_file):
+                    continue
+
+                # seqs = conformer_wav_to_sequence_list(input_file)
+                seqs = ASR_vanilla.beam_wav_to_sequence_list(input_file)
+                print("!: ", seqs)
+                fused = fuse_from_string(seqs, line)
+                print("!: ", fused)
+
+                max_str = max(fused, key=lambda x: x[0])[1]
+                lecture_transcript += "\n" + max_str[1:].replace("▁", " ")
+
+            ASR_vanilla.save_string_to_txt(
+                output_dir,
+                lecture_transcript[1:],
+            )
+
+        # move files
+        os.renames(d, os.path.join(original_directory, subdirectory))
+
+    os.makedirs(input_directory, exist_ok=True)
