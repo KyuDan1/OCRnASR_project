@@ -11,6 +11,8 @@ import ASR_vanilla
 import nemo
 import nemo.collections.asr as nemo_asr
 
+import Sub
+
 csvfile = "unigram_freq.csv"  # To be changed
 
 total = 588124220187
@@ -21,115 +23,6 @@ power_const = -1
 eps = 2.2250738585072014e-308
 
 lambda_ocr = 0.1
-
-specialcharacters = [
-    "!",
-    '"',
-    "#",
-    "$",
-    "%",
-    "&",
-    "'",
-    "(",
-    ")",
-    "*",
-    "+",
-    ",",
-    "-",
-    ".",
-    "/",
-    ":",
-    ";",
-    "<",
-    "=",
-    ">",
-    "?",
-    "@",
-    "[",
-    "\\",
-    "]",
-    "^",
-    "`",
-    "{",
-    "|",
-    "}",
-    "~",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "0",
-]
-
-substitutions = [
-    ("let's", "let us"),
-    #
-    ("can't", "cannot"),
-    ("don't", "do not"),
-    ("doesn't", "does not"),
-    ("ain't", "aint"),
-    ("isn't", "is not"),
-    ("aren't", "are not"),
-    ("wasn't", "was not"),
-    ("weren't", "were not"),
-    ("haven't", "have not"),
-    ("hasn't", "has not"),
-    ("hadn't", "had not"),
-    ("won't", "will not"),
-    ("wouldn't", "would not"),
-    ("shouldn't", "should not"),
-    ("couldn't", "could not"),
-    ("mustn't", "must not"),
-    ("shan't", "shall not"),
-    #
-    ("i'm", "i am"),
-    ("it's", "it is"),
-    ("he's", "he is"),
-    ("she's", "she is"),
-    ("they're", "they are"),
-    ("you're", "you are"),
-    #
-    ("i'll", "i will"),
-    ("it'll", "it will"),
-    ("he'll", "he will"),
-    ("she'll", "she will"),
-    ("they'll", "they will"),
-    ("you'll", "you will"),
-    ("we'll", "we will"),
-    #
-    ("i've", "i have"),
-    ("they've", "they have"),
-    ("you've", "you have"),
-    ("we've", "we have"),
-    #
-    ("i'd", "i would"),
-    ("it'd", "it would"),
-    ("he'd", "he would"),
-    ("she'd", "she would"),
-    ("you'd", "you would"),
-    #
-    ("y'all", "you all"),
-    ("in'", "ing"),
-    ("'t", "it "),
-    #
-    ("o'clock", "oclock"),
-    #
-    ("'s", ""),
-]
-
-
-def substitute(str):
-    ret = str
-    for x, y in substitutions:
-        ret = ret.replace(x, y)
-    for sc in specialcharacters:
-        ret = ret.replace(sc, " ")
-    return ret
 
 
 def frequencyOf(str):
@@ -180,7 +73,7 @@ def txt2dict(path):
     file = open(path, "r")
     text = file.read().lower()
     text = text.replace("\n", " ")
-    for sc in specialcharacters:
+    for sc in Sub.specialcharacters:
         text = text.replace(sc, " ")
     arr = text.split(" ")
     dict = {}
@@ -206,7 +99,7 @@ def str2dict(text):
     text = text.replace("\n", " ")
 
     # 2023-11-19
-    text = substitute(text)
+    text = Sub.substitute(text)
 
     arr = text.split(" ")
     dict = {}
@@ -236,7 +129,7 @@ def txts2dict(paths):
         file = open(path, "r")
         text = file.read().lower()
         text = text.replace("\n", " ")
-        for sc in specialcharacters:
+        for sc in Sub.specialcharacters:
             text = text.replace(sc, "")
         arr = text.split(" ")
 
@@ -373,7 +266,7 @@ def truncated_rf_score(seq):
     # returns the rf score of sequence
     # truncated RF; RF=1 whenever LF<NF
 
-    seq = substitute(seq.lower().replace("_", " "))
+    seq = Sub.substitute(seq.lower().replace("_", " "))
     arr = seq.split(" ")
     cnt = 0
     sum = 0

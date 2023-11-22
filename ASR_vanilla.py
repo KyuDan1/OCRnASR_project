@@ -102,7 +102,7 @@ def beam_wav_to_sequence_list(AUDIO_FILENAME):
 
 if __name__ == "__main__":
     input_directory = "files_to_process"
-    output_directory = "pure_ASR_transcript"
+    output_directory = "ASR_results"
     original_directory = "resampled_splitted_audio"
 
     for subdirectory in os.listdir(input_directory):
