@@ -127,6 +127,8 @@ def substitute(str):
     ret = str
     for x, y in substitutions:
         ret = ret.replace(x, y)
+    for sc in specialcharacters:
+        ret = ret.replace(sc, " ")
     return ret
 
 
@@ -206,8 +208,6 @@ def str2dict(text):
     # 2023-11-19
     text = substitute(text)
 
-    for sc in specialcharacters:
-        text = text.replace(sc, " ")
     arr = text.split(" ")
     dict = {}
     cnt = 0
@@ -373,7 +373,7 @@ def truncated_rf_score(seq):
     # returns the rf score of sequence
     # truncated RF; RF=1 whenever LF<NF
 
-    seq = seq.replace("_", " ")
+    seq = substitute(seq.lower().replace("_", " "))
     arr = seq.split(" ")
     cnt = 0
     sum = 0

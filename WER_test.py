@@ -1,6 +1,7 @@
 import natsort
 import os
 from jiwer import wer
+import Fuse
 
 
 def WER_of(out_dir, str_file, write_filename):
@@ -74,6 +75,10 @@ def compare(pure_txtfile, OCR_txtfile):
 def batch_WER(file1, file2):
     str1 = open(file1, "r").read().replace("\n", " ").replace("  ", " ")
     str2 = open(file2, "r").read().replace("\n", " ").replace("  ", " ")
+
+    str1 = Fuse.substitute(str1.lower())
+    str2 = Fuse.substitute(str2.lower())
+
     batch_wer = wer(str1, str2)
     print("WER of ", file1, ": ", batch_wer)
     return batch_wer
