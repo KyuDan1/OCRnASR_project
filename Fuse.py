@@ -254,6 +254,9 @@ def truncated_rf(word):
         upper = lf_dict[word]
     if word in nf_dict.keys():
         under = nf_dict[word]
+    else:
+        # substitute NF with min(NF)
+        under = min(nf_dict.values())
     if upper < under or under == 0:
         ret = 1
     else:
