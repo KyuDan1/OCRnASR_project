@@ -24,6 +24,15 @@ eps = 2.2250738585072014e-308
 
 lambda_ocr = 0.1
 
+# ablation
+# NF_0 Conventional
+# NF_1 least count substitution
+# NF_2 NF1+rescaling
+NF_MODE = -1
+# SOCR_0 Conventional
+# SOCR_1 RF>=1
+SOCR_MODE = -1
+
 
 def frequencyOf(str):
     reader = csv.reader(open(csvfile, newline=""), delimiter=",", quotechar="|")
@@ -46,6 +55,10 @@ def originalFrequencyOf(str):
 def nf_dict_from_lf_dict():
     global lf_dict
     global nf_dict
+
+    global rf_dict
+    global max_rf
+
     words = lf_dict.keys()
 
     _d = {}
@@ -58,15 +71,32 @@ def nf_dict_from_lf_dict():
             _n = int(row[1])
             _d[row[0]] = _n
             sum += _n
-    keys = _d.keys()
-    for w in words:
+    keys = _d.keys().copy()  # OCR words in the corpus
+
+    for w in words:  # OCR words
         if w not in keys:
-            _d[w] = least
-            sum += least
+            if NF_MODE >= 1:
+                _d[w] = least
+                sum += least
+            else:
+                _d[w] = 0
 
     nf_dict = {}
     for w in _d.keys():
-        nf_dict[w] = _d[w] / sum
+        nf_dict[w] = _d[w] / sum if NF_MODE == 2 else _d[w] / total
+
+    if SOCR_MODE == 0:
+        # precalculating rfs for OCR words in the corpus
+        rf_dict = {}
+        for word in lf_dict.keys():
+            if word not in keys:
+                continue
+            upper = lf_dict[word]
+            under = nf_dict[word]
+
+            rf_dict[word] = upper / under
+
+        max_rf = max(rf_dict.values())
 
 
 def txt2dict(path):
@@ -247,16 +277,34 @@ def truncated_rf(word):
     global lf_dict
     global nf_dict
 
+    global rf_dict
+    global max_rf
+
+    if SOCR_MODE == 0:
+        if word in rf_dict.keys():
+            return rf_dict[word]
+        else:
+            # not an OCR word or not in the corpus
+            if word in lf_dict.keys():
+                # not in the corpus
+                return max_rf
+            else:
+                # not an OCR word
+                return 0
+
+    # SOCR_MODE==1
+
     upper = 0
     under = 0
 
     if word in lf_dict.keys():
+        # OCR word
         upper = lf_dict[word]
-    if word in nf_dict.keys():
         under = nf_dict[word]
     else:
-        # substitute NF with min(NF)
-        under = min(nf_dict.values())
+        # not an OCR word
+        return 1
+
     if upper < under or under == 0:
         ret = 1
     else:
@@ -278,7 +326,11 @@ def truncated_rf_score(seq):
         if a == "":
             continue
         cnt += 1
-        sum += 1-1 * math.pow(truncated_rf(a), 1/power_const)
+        sum += (
+            (1 - 1 * math.pow(truncated_rf(a), 1 / power_const))
+            if SOCR_MODE == 1
+            else math.log(truncated_rf(a) + 1)
+        )
     return sum / cnt if cnt > 0 else -1
 
 
@@ -300,6 +352,14 @@ def fuse_from_string(arr, str):
 
 
 if __name__ == "__main__":
+    if NF_MODE < 0 or NF_MODE > 2:
+        NF_MODE = 0
+        print("Invalid NF_MODE. Automatically set to 0.")
+
+    if SOCR_MODE < 0 or SOCR_MODE > 1:
+        SOCR_MODE = 0
+        print("Invalid SOCR_MODE. Automatically set to 0.")
+
     input_directory = "files_to_process"
     output_directory = "ASR_with_OCR"
     ocr_directory = "OCR_text"
