@@ -71,7 +71,7 @@ def nf_dict_from_lf_dict():
             _n = int(row[1])
             _d[row[0]] = _n
             sum += _n
-    keys = _d.keys().copy()  # OCR words in the corpus
+    keys = list(_d.keys()).copy()  # OCR words in the corpus
 
     for w in words:  # OCR words
         if w not in keys:
