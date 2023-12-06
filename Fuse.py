@@ -278,7 +278,7 @@ def truncated_rf_score(seq):
         if a == "":
             continue
         cnt += 1
-        sum += -1 * math.pow(truncated_rf(a), power_const)
+        sum += 1-1 * math.pow(truncated_rf(a), 1/power_const)
     return sum / cnt if cnt > 0 else -1
 
 
