@@ -30,7 +30,8 @@ lambda_ocr = 0.1
 # NF_2 NF1+rescaling
 NF_MODE = -1
 # SOCR_0 Conventional
-# SOCR_1 RF>=1
+# SOCR_1 new s_OCR
+# SOCR_2 SOCR_1+RF>=1
 SOCR_MODE = -1
 
 
@@ -292,7 +293,7 @@ def truncated_rf(word):
                 # not an OCR word
                 return 0
 
-    # SOCR_MODE==1
+    # SOCR_MODE>=1
 
     upper = 0
     under = 0
@@ -305,7 +306,9 @@ def truncated_rf(word):
         # not an OCR word
         return 1
 
-    if upper < under or under == 0:
+    if upper < under and SOCR_MODE == 2:
+        ret = 1
+    if under == 0:
         ret = 1
     else:
         ret = upper / under
@@ -328,7 +331,7 @@ def truncated_rf_score(seq):
         cnt += 1
         sum += (
             (1 - 1 * math.pow(truncated_rf(a), 1 / power_const))
-            if SOCR_MODE == 1
+            if SOCR_MODE >= 1
             else math.log(truncated_rf(a) + 1)
         )
     return sum / cnt if cnt > 0 else -1
@@ -356,7 +359,7 @@ if __name__ == "__main__":
         NF_MODE = 0
         print("Invalid NF_MODE. Automatically set to 0.")
 
-    if SOCR_MODE < 0 or SOCR_MODE > 1:
+    if SOCR_MODE < 0 or SOCR_MODE > 2:
         SOCR_MODE = 0
         print("Invalid SOCR_MODE. Automatically set to 0.")
 
